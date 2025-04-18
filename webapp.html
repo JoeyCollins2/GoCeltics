@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blind NBA Player Ranking</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #051937, #004d7a);
+      color: #fff;
+      padding: 2rem;
+      text-align: center;
+    }
+    h1 {
+      color: #00c6ff;
+      margin-bottom: 0.5rem;
+    }
+    p.instructions {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      color: #d0e6f7;
+    }
+    #game {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #f4f4f4;
+      color: #222;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+    }
+    .player {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 1.5rem 0;
+    }
+    .rank-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .rank-buttons button {
+      padding: 0.75rem 1.25rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #fff;
+      background-color: #0072ff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .rank-buttons button:hover {
+      background-color: #005ec2;
+    }
+    #ranking-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 2rem;
+    }
+    #ranking-list li {
+      margin: 0.75rem 0;
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+    .correct {
+      color: green;
+    }
+    .incorrect {
+      color: red;
+    }
+    #play-again {
+      margin-top: 2rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 1.1rem;
+      background-color: #00c6ff;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    #play-again:hover {
+      background-color: #00a1cc;
+    }
+  </style>
+</head>
+<body>
+  <h1>🏀 Blind NBA Player Ranking</h1>
+  <p class="instructions">Rank these players from 1 to 5 — but you won't know who's next until after you've made your choice!</p>
+  <div id="game">
+    <div id="player-section">
+      <div class="player" id="current-player">Loading player...</div>
+      <div class="rank-buttons" id="rank-buttons">
+        <!-- Rank buttons will be inserted here -->
+      </div>
+    </div>
+    <ul id="ranking-list">
+      <!-- User rankings will appear here -->
+    </ul>
+    <button id="play-again" style="display:none;">Play Again</button>
+  </div>
+
+  <script>
+    const players = [
+    { "name": "Nikola Jokic", "rank": 1 },
+  { "name": "Luka Doncic", "rank": 2 },
+  { "name": "Giannis Antetokounmpo", "rank": 3 },
+  { "name": "Shai Gilgeous-Alexander", "rank": 4 },
+  { "name": "Jayson Tatum", "rank": 5 },
+  { "name": "Stephen Curry", "rank": 6 },
+  { "name": "LeBron James", "rank": 7 },
+  { "name": "Joel Embiid", "rank": 8 },
+  { "name": "Kevin Durant", "rank": 9 },
+  { "name": "Anthony Edwards", "rank": 10 },
+  { "name": "Kawhi Leonard", "rank": 11 },
+  { "name": "Damian Lillard", "rank": 12 },
+  { "name": "Anthony Davis", "rank": 13 },
+  { "name": "Devin Booker", "rank": 14 },
+  { "name": "Donovan Mitchell", "rank": 15 },
+  { "name": "Tyrese Haliburton", "rank": 16 },
+  { "name": "Jaylen Brown", "rank": 17 },
+  { "name": "Bam Adebayo", "rank": 18 },
+  { "name": "Tyrese Maxey", "rank": 19 },
+  { "name": "Paul George", "rank": 20 },
+  { "name": "Jalen Brunson", "rank": 21 },
+  { "name": "Jamal Murray", "rank": 22 },
+  { "name": "Domantas Sabonis", "rank": 23 },
+  { "name": "Jimmy Butler", "rank": 24 },
+  { "name": "Victor Wembanyama", "rank": 25 },
+  { "name": "De'Aaron Fox", "rank": 26 },
+  { "name": "Zion Williamson", "rank": 27 },
+  { "name": "Kristaps Porzingis", "rank": 28 },
+  { "name": "Pascal Siakam", "rank": 29 },
+  { "name": "Karl-Anthony Towns", "rank": 30 },
+  { "name": "Jrue Holiday", "rank": 31 },
+  { "name": "Rudy Gobert", "rank": 32 },
+  { "name": "Mikal Bridges", "rank": 33 },
+  { "name": "Brandon Ingram", "rank": 34 },
+  { "name": "DeMar DeRozan", "rank": 35 },
+  { "name": "CJ McCollum", "rank": 36 },
+  { "name": "LaMelo Ball", "rank": 37 },
+  { "name": "Bradley Beal", "rank": 38 },
+  { "name": "Fred VanVleet", "rank": 39 },
+  { "name": "Tyler Herro", "rank": 40 },
+  { "name": "Michael Porter Jr.", "rank": 41 },
+  { "name": "Darius Garland", "rank": 42 },
+  { "name": "Desmond Bane", "rank": 43 },
+  { "name": "Jaren Jackson Jr.", "rank": 44 },
+  { "name": "OG Anunoby", "rank": 45 },
+  { "name": "Andrew Wiggins", "rank": 46 },
+  { "name": "Alperen Sengun", "rank": 47 },
+  { "name": "Julius Randle", "rank": 48 },
+  { "name": "Draymond Green", "rank": 49 },
+  { "name": "Brook Lopez", "rank": 50 },
+  { "name": "Derrick White", "rank": 51 },
+  { "name": "Franz Wagner", "rank": 52 },
+  { "name": "Cade Cunningham", "rank": 53 },
+  { "name": "Scottie Barnes", "rank": 54 },
+  { "name": "Paolo Banchero", "rank": 55 },
+  { "name": "Klay Thompson", "rank": 56 },
+  { "name": "Jalen Green", "rank": 57 },
+  { "name": "Anfernee Simons", "rank": 58 },
+  { "name": "Austin Reaves", "rank": 59 },
+  { "name": "Jordan Poole", "rank": 60 },
+  { "name": "Tobias Harris", "rank": 61 },
+  { "name": "Jonas Valanciunas", "rank": 62 },
+  { "name": "John Collins", "rank": 63 },
+  { "name": "Immanuel Quickley", "rank": 64 },
+  { "name": "Malik Monk", "rank": 65 },
+  { "name": "Kevin Huerter", "rank": 66 },
+  { "name": "Josh Giddey", "rank": 67 },
+  { "name": "Bojan Bogdanovic", "rank": 68 },
+  { "name": "Buddy Hield", "rank": 69 },
+  { "name": "Terry Rozier", "rank": 70 },
+  { "name": "Miles Bridges", "rank": 71 },
+  { "name": "Jaden Ivey", "rank": 72 },
+  { "name": "De'Andre Hunter", "rank": 73 },
+  { "name": "Dillon Brooks", "rank": 74 },
+  { "name": "Herb Jones", "rank": 75 },
+  { "name": "Tyus Jones", "rank": 76 },
+  { "name": "Collin Sexton", "rank": 77 },
+  { "name": "Gary Trent Jr.", "rank": 78 },
+  { "name": "Norman Powell", "rank": 79 },
+  { "name": "Caris LeVert", "rank": 80 },
+  { "name": "Benedict Mathurin", "rank": 81 },
+  { "name": "Josh Hart", "rank": 82 },
+  { "name": "Deni Avdija", "rank": 83 },
+  { "name": "Saddiq Bey", "rank": 84 },
+  { "name": "RJ Barrett", "rank": 85 },
+  { "name": "Al Horford", "rank": 86 },
+  { "name": "Clint Capela", "rank": 87 },
+  { "name": "Mitchell Robinson", "rank": 88 },
+  { "name": "Wendell Carter Jr.", "rank": 89 },
+      // Add more if needed
+    ];
+
+    let selectedPlayers = [];
+    let currentPlayerIndex = 0;
+    let userRankings = [];
+
+    const currentPlayerDiv = document.getElementById('current-player');
+    const rankButtonsDiv = document.getElementById('rank-buttons');
+    const rankingList = document.getElementById('ranking-list');
+    const playAgainButton = document.getElementById('play-again');
+
+    function getRandomPlayers(num) {
+      const shuffled = [...players].sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, num);
+    }
+
+    function createRankButtons() {
+      rankButtonsDiv.innerHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.addEventListener('click', () => assignRank(i));
+        rankButtonsDiv.appendChild(btn);
+      }
+    }
+
+    function assignRank(rank) {
+      const player = selectedPlayers[currentPlayerIndex];
+      userRankings.push({ ...player, userRank: rank });
+      currentPlayerIndex++;
+      if (currentPlayerIndex < selectedPlayers.length) {
+        showNextPlayer();
+      } else {
+        showResults();
+      }
+    }
+
+    function showNextPlayer() {
+      currentPlayerDiv.textContent = selectedPlayers[currentPlayerIndex].name;
+    }
+
+    function showResults() {
+      currentPlayerDiv.textContent = "Your Rankings vs Expert Rankings:";
+      rankButtonsDiv.innerHTML = '';
+      rankingList.innerHTML = '';
+
+      const sortedUser = [...userRankings].sort((a, b) => a.userRank - b.userRank);
+      const sortedExpert = [...selectedPlayers].sort((a, b) => a.rank - b.rank);
+
+      sortedUser.forEach((player, index) => {
+        const li = document.createElement('li');
+        li.textContent = `${index + 1}. ${player.name} (Expert Rank: ${player.rank})`;
+        if (player.name === sortedExpert[index].name) {
+          li.classList.add('correct');
+        } else {
+          li.classList.add('incorrect');
+        }
+        rankingList.appendChild(li);
+      });
+
+      playAgainButton.style.display = 'inline-block';
+    }
+
+    function resetGame() {
+      selectedPlayers = getRandomPlayers(5);
+      currentPlayerIndex = 0;
+      userRankings = [];
+      rankingList.innerHTML = '';
+      playAgainButton.style.display = 'none';
+      createRankButtons();
+      showNextPlayer();
+    }
+
+    playAgainButton.addEventListener('click', resetGame);
+
+    // Initialize game on page load
+    resetGame();
+  </script>
+</body>
+</html>

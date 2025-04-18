@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Guess the Number: Hacker Mode</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    h1 {
+      color: #38bdf8;
+    }
+
+    input[type="text"] {
+      padding: 0.5rem;
+      font-size: 1rem;
+      width: 120px;
+      text-align: center;
+      border: none;
+      border-radius: 5px;
+      margin-top: 1rem;
+    }
+
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: #38bdf8;
+      border: none;
+      border-radius: 5px;
+      color: #0f172a;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .log {
+      margin-top: 2rem;
+      text-align: left;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      background-color: #1e293b;
+      padding: 1rem;
+      border-radius: 8px;
+    }
+
+    .hint {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .game-over {
+      color: #f87171;
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
+
+    .success {
+      color: #4ade80;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Guess the Code: Hacker Mode</h1>
+  <p>Crack the 4-digit code. You have 10 tries. 🔐</p>
+
+  <input type="text" id="guess-input" maxlength="4" placeholder="1234">
+  <br>
+  <button onclick="submitGuess()">Submit Guess</button>
+
+  <div class="hint" id="hint"></div>
+
+  <div class="log" id="log"></div>
+
+  <script>
+    const secret = generateCode();
+    let attempts = 0;
+    let maxAttempts = 10;
+    let gameOver = false;
+
+    function generateCode() {
+      let code = "";
+      while (code.length < 4) {
+        let digit = Math.floor(Math.random() * 10);
+        code += digit;
+      }
+      return code;
+    }
+
+    function submitGuess() {
+      if (gameOver) return;
+
+      const input = document.getElementById("guess-input");
+      const guess = input.value.trim();
+      const log = document.getElementById("log");
+      const hintBox = document.getElementById("hint");
+
+      if (!/^\d{4}$/.test(guess)) {
+        hintBox.textContent = "❌ Enter a valid 4-digit number.";
+        return;
+      }
+
+      attempts++;
+
+      if (guess === secret) {
+        hintBox.innerHTML = `<span class="success">🎉 Access Granted! You cracked the code in ${attempts} tries!</span>`;
+        gameOver = true;
+        return;
+      }
+
+      if (attempts >= maxAttempts) {
+        hintBox.innerHTML = `<span class="game-over">💀 System Locked. The correct code was ${secret}</span>`;
+        gameOver = true;
+        return;
+      }
+
+      let hot = 0;
+      let warm = 0;
+
+      for (let i = 0; i < 4; i++) {
+        if (guess[i] === secret[i]) {
+          hot++;
+        } else if (secret.includes(guess[i])) {
+          warm++;
+        }
+      }
+
+      let hintMsg = hot > 0 ? `🔥 ${hot} Hot` : "";
+      hintMsg += warm > 0 ? ` | 🌡️ ${warm} Warm` : "";
+      if (hot === 0 && warm === 0) hintMsg = "❄️ Cold";
+
+      const line = `Guess ${attempts}: ${guess} → ${hintMsg}`;
+      const entry = document.createElement("div");
+      entry.textContent = line;
+      log.appendChild(entry);
+
+      hintBox.textContent = hintMsg;
+      input.value = "";
+      input.focus();
+    }
+  </script>
+
+</body>
+</html>
